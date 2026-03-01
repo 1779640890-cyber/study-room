@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日生存打卡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --success: #10b981;
+            --success-light: #34d399;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--success-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .date-display {
+            margin-top: 16px;
+            padding: 12px 24px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            display: inline-block;
+            border: 1px solid var(--border);
+        }
+
+        .date-display span {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        section:hover {
+            transform: translateY(-2px);
+        }
+
+        section h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        section h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(180deg, var(--primary), var(--success));
+            border-radius: 2px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+            background: var(--bg-card-hover);
+        }
+
+        .stat-card .icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        .stat-card .label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .checkin-area {
+            text-align: center;
+            padding: 32px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            font-size: 1rem;
+        }
+
+        .status-badge.checked {
+            background: linear-gradient(135deg, var(--success), var(--success-light));
+            color: white;
+        }
+
+        .status-badge.unchecked {
+            background: var(--bg);
+            border: 2px dashed var(--border);
+            color: var(--text-muted);
+        }
+
+        .checkin-btn {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checkin-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(99, 102, 241, 0.5);
+        }
+
+        .checkin-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .checkin-btn:disabled {
+            background: linear-gradient(135deg, var(--success), var(--success-light));
+            cursor: default;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+        }
+
+        .checkin-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .checkin-btn:hover::before {
+            left: 100%;
+        }
+
+        .checkin-btn .btn-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .checkin-time {
+            margin-top: 16px;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .calendar-nav button {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.25rem;
+        }
+
+        .calendar-nav button:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .calendar-month {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 8px 0;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: default;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .calendar-day.empty {
+            background: transparent;
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--primary);
+        }
+
+        .calendar-day.checked {
+            background: linear-gradient(135deg, var(--success), var(--success-light));
+            color: white;
+        }
+
+        .calendar-day.unchecked:not(.empty) {
+            background: var(--bg);
+            color: var(--text-muted);
+        }
+
+        .calendar-day.future {
+            color: var(--border);
+        }
+
+        .calendar-day .tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .calendar-day:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: var(--bg);
+            border-radius: 3px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            border-color: var(--primary);
+        }
+
+        .history-item .date {
+            font-weight: 500;
+        }
+
+        .history-item .time {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .history-item .status {
+            font-size: 1.25rem;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h3 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+
+        .modal p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 32px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn.confirm {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .modal-btn.confirm:hover {
+            transform: translateY(-2px);
+        }
+
+        .modal-btn.cancel {
+            background: var(--bg);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .modal-btn.cancel:hover {
+            border-color: var(--text-muted);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--success);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .guide {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .guide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .guide-content {
+            max-width: 500px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .guide-content h2 {
+            font-size: 2rem;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--primary-light), var(--success-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .guide-content p {
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+
+        .guide-features {
+            text-align: left;
+            margin: 24px 0;
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .guide-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+        }
+
+        .guide-feature .icon {
+            font-size: 1.5rem;
+        }
+
+        .guide-start {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+        }
+
+        .guide-start:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            75% { transform: scale(1.1) rotate(-5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .celebrate {
+            animation: celebrate 0.5s ease;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.75rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-card .value {
+                font-size: 1.5rem;
+            }
+
+            .checkin-btn {
+                width: 140px;
+                height: 140px;
+            }
+
+            .calendar-grid {
+                gap: 4px;
+            }
+
+            .calendar-day {
+                font-size: 0.75rem;
+                border-radius: 8px;
+            }
+
+            section {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="guide" id="guide">
+        <div class="guide-content">
+            <h2>每日生存打卡</h2>
+            <p>记录每一天的坚持，见证成长的足迹</p>
+            <div class="guide-features">
+                <div class="guide-feature">
+                    <span class="icon">✅</span>
+                    <span>每日一键打卡，记录你的坚持</span>
+                </div>
+                <div class="guide-feature">
+                    <span class="icon">📊</span>
+                    <span>统计连续天数，激励持续进步</span>
+                </div>
+                <div class="guide-feature">
+                    <span class="icon">📅</span>
+                    <span>日历视图回顾，一目了然</span>
+                </div>
+                <div class="guide-feature">
+                    <span class="icon">💾</span>
+                    <span>本地存储数据，隐私安全</span>
+                </div>
+            </div>
+            <button class="guide-start" onclick="closeGuide()">开始打卡之旅</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>每日生存打卡</h1>
+            <p>记录每一天，见证成长</p>
+            <div class="date-display">
+                <span id="currentDate"></span>
+            </div>
+        </header>
+
+        <main>
+            <section class="stats-section">
+                <h2>打卡统计</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="icon">🔥</div>
+                        <div class="value" id="streakDays">0</div>
+                        <div class="label">连续打卡</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon">🎯</div>
+                        <div class="value" id="totalDays">0</div>
+                        <div class="label">累计打卡</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon">🏆</div>
+                        <div class="value" id="maxStreak">0</div>
+                        <div class="label">最长连续</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="checkin-section">
+                <h2>今日打卡</h2>
+                <div class="checkin-area">
+                    <div class="status-badge unchecked" id="statusBadge">
+                        <span id="statusIcon">⏳</span>
+                        <span id="statusText">今日未打卡</span>
+                    </div>
+                    <button class="checkin-btn pulse" id="checkinBtn" onclick="showConfirmModal()">
+                        <span class="btn-icon">✓</span>
+                        <span>打卡</span>
+                    </button>
+                    <div class="checkin-time" id="checkinTime"></div>
+                </div>
+            </section>
+
+            <section class="calendar-section">
+                <h2>打卡日历</h2>
+                <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button onclick="changeMonth(-1)">‹</button>
+                        <button onclick="changeMonth(1)">›</button>
+                    </div>
+                    <div class="calendar-month" id="calendarMonth"></div>
+                    <button class="calendar-nav" style="visibility: hidden;">‹</button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </section>
+
+            <section class="history-section">
+                <h2>最近记录</h2>
+                <div class="history-list" id="historyList"></div>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <h3>确认打卡</h3>
+            <p>确定要记录今日的打卡吗？</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeModal()">取消</button>
+                <button class="modal-btn confirm" onclick="confirmCheckin()">确认打卡</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">打卡成功！继续保持！</div>
+
+    <script>
+        const STORAGE_KEY = 'daily_checkin_data';
+        const GUIDE_KEY = 'daily_checkin_guide_shown';
+        
+        let checkinData = {
+            records: [],
+            streak: 0,
+            maxStreak: 0
+        };
+        
+        let currentCalendarDate = new Date();
+
+        function init() {
+            loadData();
+            checkGuide();
+            updateDisplay();
+            renderCalendar();
+            renderHistory();
+        }
+
+        function checkGuide() {
+            const guideShown = localStorage.getItem(GUIDE_KEY);
+            if (!guideShown) {
+                document.getElementById('guide').classList.add('active');
+            }
+        }
+
+        function closeGuide() {
+            document.getElementById('guide').classList.remove('active');
+            localStorage.setItem(GUIDE_KEY, 'true');
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                checkinData = JSON.parse(saved);
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(checkinData));
+        }
+
+        function getTodayStr() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function formatDate(date) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            return date.toLocaleDateString('zh-CN', options);
+        }
+
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function isCheckedToday() {
+            const today = getTodayStr();
+            return checkinData.records.some(r => r.date === today);
+        }
+
+        function updateDisplay() {
+            document.getElementById('currentDate').textContent = formatDate(new Date());
+            
+            const checked = isCheckedToday();
+            const badge = document.getElementById('statusBadge');
+            const icon = document.getElementById('statusIcon');
+            const text = document.getElementById('statusText');
+            const btn = document.getElementById('checkinBtn');
+            const timeDiv = document.getElementById('checkinTime');
+            
+            if (checked) {
+                badge.className = 'status-badge checked';
+                icon.textContent = '✅';
+                text.textContent = '今日已打卡';
+                btn.disabled = true;
+                btn.innerHTML = '<span class="btn-icon">✓</span><span>已完成</span>';
+                btn.classList.remove('pulse');
+                
+                const todayRecord = checkinData.records.find(r => r.date === getTodayStr());
+                if (todayRecord) {
+                    timeDiv.textContent = `打卡时间：${formatTime(todayRecord.time)}`;
+                }
+            } else {
+                badge.className = 'status-badge unchecked';
+                icon.textContent = '⏳';
+                text.textContent = '今日未打卡';
+                btn.disabled = false;
+                btn.innerHTML = '<span class="btn-icon">✓</span><span>打卡</span>';
+                btn.classList.add('pulse');
+                timeDiv.textContent = '';
+            }
+            
+            calculateStreak();
+            
+            document.getElementById('streakDays').textContent = checkinData.streak;
+            document.getElementById('totalDays').textContent = checkinData.records.length;
+            document.getElementById('maxStreak').textContent = checkinData.maxStreak;
+        }
+
+        function calculateStreak() {
+            if (checkinData.records.length === 0) {
+                checkinData.streak = 0;
+                return;
+            }
+            
+            const sortedDates = checkinData.records
+                .map(r => r.date)
+                .sort((a, b) => new Date(b) - new Date(a));
+            
+            let streak = 0;
+            const today = new Date(getTodayStr());
+            let checkDate = new Date(today);
+            
+            if (!isCheckedToday()) {
+                checkDate.setDate(checkDate.getDate() - 1);
+            }
+            
+            while (true) {
+                const dateStr = checkDate.toISOString().split('T')[0];
+                if (sortedDates.includes(dateStr)) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            
+            checkinData.streak = streak;
+            checkinData.maxStreak = Math.max(checkinData.maxStreak, streak);
+            saveData();
+        }
+
+        function showConfirmModal() {
+            if (isCheckedToday()) return;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        function confirmCheckin() {
+            if (isCheckedToday()) {
+                closeModal();
+                return;
+            }
+            
+            const now = new Date().toISOString();
+            const today = getTodayStr();
+            
+            checkinData.records.push({
+                date: today,
+                time: now
+            });
+            
+            saveData();
+            closeModal();
+            
+            const btn = document.getElementById('checkinBtn');
+            btn.classList.add('celebrate');
+            setTimeout(() => btn.classList.remove('celebrate'), 500);
+            
+            showToast();
+            updateDisplay();
+            renderCalendar();
+            renderHistory();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthDisplay = document.getElementById('calendarMonth');
+            
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            monthDisplay.textContent = `${year}年${month + 1}月`;
+            
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            let html = weekdays.map(d => `<div class="calendar-weekday">${d}</div>`).join('');
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startPadding = firstDay.getDay();
+            
+            for (let i = 0; i < startPadding; i++) {
+                html += '<div class="calendar-day empty"></div>';
+            }
+            
+            const today = new Date();
+            const todayStr = getTodayStr();
+            
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const date = new Date(year, month, day);
+                const dateStr = date.toISOString().split('T')[0];
+                const isToday = dateStr === todayStr;
+                const isFuture = date > today;
+                const isChecked = checkinData.records.some(r => r.date === dateStr);
+                
+                let classes = ['calendar-day'];
+                if (isToday) classes.push('today');
+                if (isChecked) classes.push('checked');
+                else if (!isFuture) classes.push('unchecked');
+                if (isFuture) classes.push('future');
+                
+                const tooltip = isChecked 
+                    ? `<div class="tooltip">已打卡 ✓</div>` 
+                    : (isFuture ? '' : `<div class="tooltip">未打卡</div>`);
+                
+                html += `<div class="${classes.join(' ')}">${day}${tooltip}</div>`;
+            }
+            
+            grid.innerHTML = html;
+        }
+
+        function changeMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            
+            const sortedRecords = [...checkinData.records]
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 10);
+            
+            if (sortedRecords.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">暂无打卡记录</div>';
+                return;
+            }
+            
+            list.innerHTML = sortedRecords.map(record => {
+                const date = new Date(record.date);
+                const dateStr = date.toLocaleDateString('zh-CN', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    weekday: 'short'
+                });
+                
+                return `
+                    <div class="history-item">
+                        <div>
+                            <div class="date">${dateStr}</div>
+                            <div class="time">${formatTime(record.time)}</div>
+                        </div>
+                        <div class="status">✅</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        init();
+    </script>
+</body>
+</html>

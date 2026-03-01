@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专注自习室 - 一起学习，互相监督</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="authPage" class="auth-container">
+        <div class="auth-box">
+            <h1>专注自习室</h1>
+            <p class="subtitle">一起学习，互相监督</p>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="switchAuthTab('login')">登录</div>
+                <div class="auth-tab" onclick="switchAuthTab('register')">注册</div>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" class="input" id="loginUsername" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" class="input" id="loginPassword" placeholder="请输入密码" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">登录</button>
+            </form>
+
+            <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+                <div class="avatar-upload">
+                    <div class="avatar-preview" onclick="changeAvatar()">
+                        <span id="avatarEmoji">📚</span>
+                    </div>
+                    <small style="color: var(--text-muted);">点击更换头像</small>
+                </div>
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" class="input" id="regUsername" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label>昵称</label>
+                    <input type="text" class="input" id="regNickname" placeholder="请输入昵称">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" class="input" id="regPassword" placeholder="请输入密码" required>
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <input type="password" class="input" id="regConfirmPassword" placeholder="请再次输入密码" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">注册</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="lobbyPage" class="lobby-container hidden">
+        <header class="lobby-header">
+            <div class="logo">专注自习室</div>
+            <div class="user-info">
+                <div class="user-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalStudyTime">0小时0分</div>
+                        <div class="stat-label">累计学习</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="studyDays">0</div>
+                        <div class="stat-label">学习天数</div>
+                    </div>
+                </div>
+                <div class="user-avatar" id="userAvatar">📚</div>
+                <span id="userNickname">用户</span>
+                <button class="btn btn-secondary" onclick="logout()" style="padding: 8px 16px;">退出</button>
+            </div>
+        </header>
+
+        <main class="lobby-content">
+            <div class="quick-actions">
+                <div class="action-card" onclick="showCreateRoomModal()">
+                    <div class="icon">🏠</div>
+                    <h3>创建自习室</h3>
+                    <p>创建一个新的自习室，邀请朋友一起学习</p>
+                </div>
+                <div class="action-card" onclick="showJoinRoomModal()">
+                    <div class="icon">🚪</div>
+                    <h3>加入自习室</h3>
+                    <p>通过房间号加入已有的自习室</p>
+                </div>
+                <div class="action-card" onclick="showStatsModal()">
+                    <div class="icon">📊</div>
+                    <h3>学习统计</h3>
+                    <p>查看你的学习数据和成长记录</p>
+                </div>
+                <div class="action-card" onclick="showTasksModal()">
+                    <div class="icon">📋</div>
+                    <h3>任务清单</h3>
+                    <p>管理你的学习任务和目标</p>
+                </div>
+            </div>
+
+            <section class="lobby-section">
+                <h2>🔥 热门自习室</h2>
+                <div class="rooms-grid" id="roomsGrid"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="studyRoomPage" class="study-room hidden">
+        <header class="room-header-bar">
+            <div class="room-title">
+                <button class="control-btn" onclick="leaveRoom()">←</button>
+                <h2 id="currentRoomName">自习室</h2>
+                <span class="members-count" id="membersCount">0人在线</span>
+            </div>
+            <div class="room-controls">
+                <div class="timer-display" id="timerDisplay">00:00:00</div>
+                <button class="control-btn" id="pauseBtn" onclick="toggleTimer()">⏸</button>
+                <button class="control-btn" id="cameraBtn" onclick="toggleCamera()">📷</button>
+                <button class="control-btn" id="micBtn" onclick="toggleMic()">🎤</button>
+                <button class="control-btn danger" onclick="leaveRoom()">✕</button>
+            </div>
+        </header>
+
+        <div class="study-main">
+            <div class="video-section">
+                <div class="video-grid" id="videoGrid"></div>
+            </div>
+
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-tabs">
+                    <div class="sidebar-tab active" onclick="switchSidebarTab('leaderboard')">排行</div>
+                    <div class="sidebar-tab" onclick="switchSidebarTab('tasks')">任务</div>
+                    <div class="sidebar-tab" onclick="switchSidebarTab('members')">成员</div>
+                    <div class="sidebar-tab" onclick="switchSidebarTab('emoji')">表情</div>
+                    <div class="sidebar-tab" onclick="switchSidebarTab('chat')">聊天</div>
+                </div>
+
+                <div class="sidebar-content">
+                    <div id="leaderboardTab" class="leaderboard-list">
+                        <div class="leaderboard-header">
+                            <span>🏆 今日学习排行</span>
+                        </div>
+                        <div id="leaderboardContent"></div>
+                    </div>
+
+                    <div id="tasksTab" class="tasks-list hidden">
+                        <div class="tasks-header">
+                            <span>📋 我的任务</span>
+                            <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="showAddTaskInput()">+ 添加</button>
+                        </div>
+                        <div id="addTaskArea" class="add-task-area hidden">
+                            <input type="text" class="input" id="newTaskInput" placeholder="输入任务内容..." onkeypress="handleTaskKeypress(event)">
+                            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                <button class="btn btn-primary" style="flex: 1; padding: 8px;" onclick="addTask()">添加</button>
+                                <button class="btn btn-secondary" style="padding: 8px;" onclick="hideAddTaskInput()">取消</button>
+                            </div>
+                        </div>
+                        <div id="tasksContent"></div>
+                    </div>
+
+                    <div id="membersTab" class="members-list hidden"></div>
+
+                    <div id="emojiTab" class="hidden">
+                        <p style="color: var(--text-muted); margin-bottom: 12px; font-size: 0.875rem;">选择成员发送表情包提醒：</p>
+                        <div class="emoji-panel" id="emojiPanel"></div>
+                        <button class="btn btn-primary send-emoji-btn" onclick="sendEmoji()">发送表情包</button>
+                    </div>
+
+                    <div id="chatTab" class="hidden">
+                        <div class="chat-messages" id="chatMessages"></div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <form onsubmit="sendChatMessage(event)">
+                        <input type="text" class="input" id="chatInput" placeholder="输入消息...">
+                        <button type="submit" class="btn btn-primary" style="padding: 14px;">发送</button>
+                    </form>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <div class="emoji-alert" id="emojiAlert">
+        <div class="emoji" id="alertEmoji">😴</div>
+        <div class="sender" id="alertSender">来自 用户</div>
+    </div>
+
+    <div class="modal-overlay" id="createRoomModal">
+        <div class="modal">
+            <h3>创建自习室</h3>
+            <div class="form-group">
+                <label>自习室名称</label>
+                <input type="text" class="input" id="roomName" placeholder="给自习室起个名字">
+            </div>
+            <div class="form-group">
+                <label>最大人数</label>
+                <input type="number" class="input" id="maxMembers" value="20" min="2" max="50">
+            </div>
+            <div class="form-group">
+                <label>房间类型</label>
+                <div style="display: flex; gap: 12px; margin-top: 8px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="roomType" value="public" checked> 公开
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="roomType" value="private"> 私密（需要密码）
+                    </label>
+                </div>
+            </div>
+            <div class="form-group hidden" id="roomPasswordGroup">
+                <label>房间密码</label>
+                <input type="password" class="input" id="roomPassword" placeholder="设置房间密码">
+            </div>
+            <div class="form-group">
+                <label>主题标签（用逗号分隔）</label>
+                <input type="text" class="input" id="roomTags" placeholder="如：考研, 编程, 英语">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('createRoomModal')">取消</button>
+                <button class="btn btn-primary" onclick="createRoom()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="joinRoomModal">
+        <div class="modal">
+            <h3>加入自习室</h3>
+            <div class="form-group">
+                <label>房间号</label>
+                <input type="text" class="input" id="joinRoomId" placeholder="请输入房间号">
+            </div>
+            <div class="form-group hidden" id="joinPasswordGroup">
+                <label>房间密码</label>
+                <input type="password" class="input" id="joinPassword" placeholder="请输入房间密码">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('joinRoomModal')">取消</button>
+                <button class="btn btn-primary" onclick="joinRoom()">加入</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="statsModal">
+        <div class="modal">
+            <h3>学习统计</h3>
+            <div class="stats-panel">
+                <h4>本周学习时长</h4>
+                <div class="stats-chart" id="weeklyChart"></div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                <div style="background: var(--bg); padding: 16px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-light);" id="weekTotal">0小时</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">本周累计</div>
+                </div>
+                <div style="background: var(--bg); padding: 16px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);" id="avgDaily">0小时</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">日均学习</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" style="width: 100%;" onclick="closeModal('statsModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="tasksModal">
+        <div class="modal">
+            <h3>📋 任务清单</h3>
+            <div class="tasks-modal-content">
+                <div class="add-task-area">
+                    <input type="text" class="input" id="modalTaskInput" placeholder="输入新任务..." onkeypress="handleModalTaskKeypress(event)">
+                    <button class="btn btn-primary" style="margin-top: 8px; width: 100%;" onclick="addTaskFromModal()">添加任务</button>
+                </div>
+                <div id="modalTasksList" style="margin-top: 16px; max-height: 300px; overflow-y: auto;"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" style="width: 100%;" onclick="closeModal('tasksModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

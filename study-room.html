@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专注自习室 - 一起学习，互相监督</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --success: #10b981;
+            --success-light: #34d399;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .hidden { display: none !important; }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+
+        .input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-box {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .auth-box h1 {
+            font-size: 1.75rem;
+            text-align: center;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary-light), var(--success-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-box .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg);
+            color: var(--text-muted);
+            border: 1px solid transparent;
+        }
+
+        .auth-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .avatar-upload {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid var(--border);
+        }
+
+        .avatar-preview:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+
+        .lobby-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lobby-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--success-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 24px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .lobby-content {
+            flex: 1;
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .lobby-section {
+            margin-bottom: 32px;
+        }
+
+        .lobby-section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .action-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .action-card .icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .action-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .action-card p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .room-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .room-card:hover {
+            border-color: var(--primary);
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .room-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .room-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .room-status.public {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .room-status.private {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .room-info {
+            display: flex;
+            gap: 16px;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 12px;
+        }
+
+        .room-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .room-tag {
+            padding: 4px 10px;
+            background: var(--bg);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 480px;
+            width: 90%;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            border: 1px solid var(--border);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h3 {
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+        .study-room {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .room-header-bar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .room-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .room-title h2 {
+            font-size: 1.1rem;
+        }
+
+        .room-title .members-count {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .room-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .timer-display {
+            background: var(--bg);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-family: 'SF Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .control-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: none;
+            background: var(--bg);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .control-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        .control-btn.active {
+            background: var(--success);
+        }
+
+        .control-btn.danger {
+            background: var(--danger);
+        }
+
+        .study-main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .video-section {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-grid {
+            flex: 1;
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            align-content: start;
+        }
+
+        .video-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 4/3;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .video-card.self {
+            border-color: var(--primary);
+        }
+
+        .video-card.idle {
+            border-color: var(--warning);
+        }
+
+        .video-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg));
+        }
+
+        .video-placeholder .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .video-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-name {
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .video-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .status-dot.idle {
+            background: var(--warning);
+        }
+
+        .video-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .sidebar {
+            width: 320px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-muted);
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+        }
+
+        .sidebar-tab.active {
+            color: var(--primary-light);
+            border-bottom-color: var(--primary);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .members-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .member-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .member-item.selected {
+            border: 1px solid var(--primary);
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .member-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .emoji-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .emoji-item {
+            aspect-ratio: 1;
+            background: var(--bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .emoji-item:hover {
+            background: var(--bg-hover);
+            transform: scale(1.1);
+        }
+
+        .emoji-item.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .send-emoji-btn {
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-message {
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 12px;
+        }
+
+        .chat-message .sender {
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 4px;
+            color: var(--primary-light);
+        }
+
+        .chat-message .content {
+            font-size: 0.875rem;
+            color: var(--text);
+        }
+
+        .chat-message .time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .chat-input-area {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .chat-input-area form {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+        }
+
+        .emoji-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 2000;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .emoji-alert.show {
+            animation: emojiPop 5s ease forwards;
+        }
+
+        .emoji-alert .emoji {
+            font-size: 8rem;
+            animation: emojiBounce 0.5s ease infinite alternate;
+        }
+
+        .emoji-alert .sender {
+            margin-top: 16px;
+            font-size: 1.25rem;
+            color: var(--text);
+            background: var(--bg-card);
+            padding: 12px 24px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+        }
+
+        @keyframes emojiPop {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            10% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            20% { transform: translate(-50%, -50%) scale(1); }
+            80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+
+        @keyframes emojiBounce {
+            from { transform: rotate(-5deg); }
+            to { transform: rotate(5deg); }
+        }
+
+        .stats-panel {
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .stats-panel h4 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .stats-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 100px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            border-radius: 4px 4px 0 0;
+            min-height: 10px;
+            position: relative;
+        }
+
+        .chart-bar::after {
+            content: attr(data-day);
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--success);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 50%;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                z-index: 100;
+            }
+
+            .sidebar.open {
+                transform: translateY(0);
+            }
+
+            .video-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .user-stats {
+                display: none;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="authPage" class="auth-container">
+        <div class="auth-box">
+            <h1>专注自习室</h1>
+            <p class="subtitle">一起学习，互相监督</p>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="switchAuthTab('login')">登录</div>
+                <div class="auth-tab" onclick="switchAuthTab('register')">注册</div>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" class="input" id="loginUsername" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" class="input" id="loginPassword" placeholder="请输入密码" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">登录</button>
+            </form>
+
+            <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+                <div class="avatar-upload">
+                    <div class="avatar-preview" onclick="changeAvatar()">
+                        <span id="avatarEmoji">📚</span>
+                    </div>
+                    <small style="color: var(--text-muted);">点击更换头像</small>
+                </div>
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" class="input" id="regUsername" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label>昵称</label>
+                    <input type="text" class="input" id="regNickname" placeholder="请输入昵称">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" class="input" id="regPassword" placeholder="请输入密码" required>
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <input type="password" class="input" id="regConfirmPassword" placeholder="请再次输入密码" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">注册</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="lobbyPage" class="lobby-container hidden">
+        <header class="lobby-header">
+            <div class="logo">专注自习室</div>
+            <div class="user-info">
+                <div class="user-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalStudyTime">0h</div>
+                        <div class="stat-label">累计学习</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="studyDays">0</div>
+                        <div class="stat-label">学习天数</div>
+                    </div>
+                </div>
+                <div class="user-avatar" id="userAvatar">📚</div>
+                <span id="userNickname">用户</span>
+                <button class="btn btn-secondary" onclick="logout()" style="padding: 8px 16px;">退出</button>
+            </div>
+        </header>
+
+        <main class="lobby-content">
+            <div class="quick-actions">
+                <div class="action-card" onclick="showCreateRoomModal()">
+                    <div class="icon">🏠</div>
+                    <h3>创建自习室</h3>
+                    <p>创建一个新的自习室，邀请朋友一起学习</p>
+                </div>
+                <div class="action-card" onclick="showJoinRoomModal()">
+                    <div class="icon">🚪</div>
+                    <h3>加入自习室</h3>
+                    <p>通过房间号加入已有的自习室</p>
+                </div>
+                <div class="action-card" onclick="showStatsModal()">
+                    <div class="icon">📊</div>
+                    <h3>学习统计</h3>
+                    <p>查看你的学习数据和成长记录</p>
+                </div>
+            </div>
+
+            <section class="lobby-section">
+                <h2>🔥 热门自习室</h2>
+                <div class="rooms-grid" id="roomsGrid"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="studyRoomPage" class="study-room hidden">
+        <header class="room-header-bar">
+            <div class="room-title">
+                <button class="control-btn" onclick="leaveRoom()">←</button>
+                <h2 id="currentRoomName">自习室</h2>
+                <span class="members-count" id="membersCount">0人在线</span>
+            </div>
+            <div class="room-controls">
+                <div class="timer-display" id="timerDisplay">00:00:00</div>
+                <button class="control-btn" id="pauseBtn" onclick="toggleTimer()">⏸</button>
+                <button class="control-btn" id="cameraBtn" onclick="toggleCamera()">📷</button>
+                <button class="control-btn" id="micBtn" onclick="toggleMic()">🎤</button>
+                <button class="control-btn danger" onclick="leaveRoom()">✕</button>
+            </div>
+        </header>
+
+        <div class="study-main">
+            <div class="video-section">
+                <div class="video-grid" id="videoGrid"></div>
+            </div>
+
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-tabs">
+                    <div class="sidebar-tab active" onclick="switchSidebarTab('members')">成员</div>
+                    <div class="sidebar-tab" onclick="switchSidebarTab('emoji')">表情</div>
+                    <div class="sidebar-tab" onclick="switchSidebarTab('chat')">聊天</div>
+                </div>
+
+                <div class="sidebar-content">
+                    <div id="membersTab" class="members-list"></div>
+
+                    <div id="emojiTab" class="hidden">
+                        <p style="color: var(--text-muted); margin-bottom: 12px; font-size: 0.875rem;">选择成员发送表情包提醒：</p>
+                        <div class="emoji-panel" id="emojiPanel"></div>
+                        <button class="btn btn-primary send-emoji-btn" onclick="sendEmoji()">发送表情包</button>
+                    </div>
+
+                    <div id="chatTab" class="hidden">
+                        <div class="chat-messages" id="chatMessages"></div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <form onsubmit="sendChatMessage(event)">
+                        <input type="text" class="input" id="chatInput" placeholder="输入消息...">
+                        <button type="submit" class="btn btn-primary" style="padding: 14px;">发送</button>
+                    </form>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <div class="emoji-alert" id="emojiAlert">
+        <div class="emoji" id="alertEmoji">😴</div>
+        <div class="sender" id="alertSender">来自 用户</div>
+    </div>
+
+    <div class="modal-overlay" id="createRoomModal">
+        <div class="modal">
+            <h3>创建自习室</h3>
+            <div class="form-group">
+                <label>自习室名称</label>
+                <input type="text" class="input" id="roomName" placeholder="给自习室起个名字">
+            </div>
+            <div class="form-group">
+                <label>最大人数</label>
+                <input type="number" class="input" id="maxMembers" value="20" min="2" max="50">
+            </div>
+            <div class="form-group">
+                <label>房间类型</label>
+                <div style="display: flex; gap: 12px; margin-top: 8px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="roomType" value="public" checked> 公开
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="roomType" value="private"> 私密（需要密码）
+                    </label>
+                </div>
+            </div>
+            <div class="form-group hidden" id="roomPasswordGroup">
+                <label>房间密码</label>
+                <input type="password" class="input" id="roomPassword" placeholder="设置房间密码">
+            </div>
+            <div class="form-group">
+                <label>主题标签（用逗号分隔）</label>
+                <input type="text" class="input" id="roomTags" placeholder="如：考研, 编程, 英语">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('createRoomModal')">取消</button>
+                <button class="btn btn-primary" onclick="createRoom()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="joinRoomModal">
+        <div class="modal">
+            <h3>加入自习室</h3>
+            <div class="form-group">
+                <label>房间号</label>
+                <input type="text" class="input" id="joinRoomId" placeholder="请输入房间号">
+            </div>
+            <div class="form-group hidden" id="joinPasswordGroup">
+                <label>房间密码</label>
+                <input type="password" class="input" id="joinPassword" placeholder="请输入房间密码">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('joinRoomModal')">取消</button>
+                <button class="btn btn-primary" onclick="joinRoom()">加入</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="statsModal">
+        <div class="modal">
+            <h3>学习统计</h3>
+            <div class="stats-panel">
+                <h4>本周学习时长</h4>
+                <div class="stats-chart" id="weeklyChart"></div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                <div style="background: var(--bg); padding: 16px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-light);" id="weekTotal">0h</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">本周累计</div>
+                </div>
+                <div style="background: var(--bg); padding: 16px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);" id="avgDaily">0h</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">日均学习</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" style="width: 100%;" onclick="closeModal('statsModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const STORAGE_KEY = 'study_room_data';
+        const AVATARS = ['📚', '📖', '✏️', '🎓', '💡', '🔬', '💻', '🎯', '⭐', '🌟', '🔥', '💪'];
+        
+        let appData = {
+            users: {},
+            rooms: {},
+            currentUser: null
+        };
+
+        let currentRoom = null;
+        let studyTimer = null;
+        let studySeconds = 0;
+        let isPaused = false;
+        let cameraEnabled = true;
+        let micEnabled = true;
+        let selectedMember = null;
+        let selectedEmoji = null;
+        let localStream = null;
+
+        function init() {
+            loadData();
+            checkAuth();
+            setupRoomTypeListener();
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                appData = JSON.parse(saved);
+            }
+            
+            if (Object.keys(appData.rooms).length === 0) {
+                appData.rooms = {
+                    'room001': {
+                        id: 'room001',
+                        name: '考研冲刺营',
+                        type: 'public',
+                        maxMembers: 30,
+                        members: {},
+                        tags: ['考研', '冲刺', '互相监督'],
+                        createdAt: Date.now()
+                    },
+                    'room002': {
+                        id: 'room002',
+                        name: '程序员自习室',
+                        type: 'public',
+                        maxMembers: 20,
+                        members: {},
+                        tags: ['编程', '技术', '学习'],
+                        createdAt: Date.now()
+                    },
+                    'room003': {
+                        id: 'room003',
+                        name: '英语角',
+                        type: 'private',
+                        password: '123456',
+                        maxMembers: 15,
+                        members: {},
+                        tags: ['英语', '口语', '阅读'],
+                        createdAt: Date.now()
+                    }
+                };
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        }
+
+        function checkAuth() {
+            if (appData.currentUser && appData.users[appData.currentUser]) {
+                showLobby();
+            }
+        }
+
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+            } else {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            }
+        }
+
+        function changeAvatar() {
+            const current = AVATARS.indexOf(document.getElementById('avatarEmoji').textContent);
+            const next = (current + 1) % AVATARS.length;
+            document.getElementById('avatarEmoji').textContent = AVATARS[next];
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!appData.users[username]) {
+                showToast('用户不存在', 'error');
+                return;
+            }
+
+            if (appData.users[username].password !== password) {
+                showToast('密码错误', 'error');
+                return;
+            }
+
+            appData.currentUser = username;
+            saveData();
+            showLobby();
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const nickname = document.getElementById('regNickname').value || username;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const avatar = document.getElementById('avatarEmoji').textContent;
+
+            if (appData.users[username]) {
+                showToast('用户名已存在', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showToast('两次密码不一致', 'error');
+                return;
+            }
+
+            appData.users[username] = {
+                username,
+                nickname,
+                password,
+                avatar,
+                totalStudyTime: 0,
+                studyDays: 0,
+                weeklyData: [0, 0, 0, 0, 0, 0, 0],
+                createdAt: Date.now()
+            };
+
+            appData.currentUser = username;
+            saveData();
+            showLobby();
+            showToast('注册成功！');
+        }
+
+        function logout() {
+            appData.currentUser = null;
+            saveData();
+            document.getElementById('authPage').classList.remove('hidden');
+            document.getElementById('lobbyPage').classList.add('hidden');
+            document.getElementById('studyRoomPage').classList.add('hidden');
+        }
+
+        function showLobby() {
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('lobbyPage').classList.remove('hidden');
+            document.getElementById('studyRoomPage').classList.add('hidden');
+            
+            const user = appData.users[appData.currentUser];
+            document.getElementById('userAvatar').textContent = user.avatar;
+            document.getElementById('userNickname').textContent = user.nickname;
+            document.getElementById('totalStudyTime').textContent = formatHours(user.totalStudyTime);
+            document.getElementById('studyDays').textContent = user.studyDays;
+            
+            renderRooms();
+        }
+
+        function renderRooms() {
+            const grid = document.getElementById('roomsGrid');
+            grid.innerHTML = Object.values(appData.rooms).map(room => `
+                <div class="room-card" onclick="joinRoomDirect('${room.id}')">
+                    <div class="room-header">
+                        <span class="room-name">${room.name}</span>
+                        <span class="room-status ${room.type}">${room.type === 'public' ? '公开' : '私密'}</span>
+                    </div>
+                    <div class="room-info">
+                        <span>👥 ${Object.keys(room.members).length}/${room.maxMembers}</span>
+                        <span>🆔 ${room.id}</span>
+                    </div>
+                    <div class="room-tags">
+                        ${room.tags.map(tag => `<span class="room-tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setupRoomTypeListener() {
+            document.querySelectorAll('input[name="roomType"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    document.getElementById('roomPasswordGroup').classList.toggle('hidden', e.target.value === 'public');
+                });
+            });
+        }
+
+        function showCreateRoomModal() {
+            document.getElementById('createRoomModal').classList.add('active');
+        }
+
+        function showJoinRoomModal() {
+            document.getElementById('joinRoomModal').classList.add('active');
+        }
+
+        function showStatsModal() {
+            renderWeeklyChart();
+            document.getElementById('statsModal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function createRoom() {
+            const name = document.getElementById('roomName').value || '我的自习室';
+            const maxMembers = parseInt(document.getElementById('maxMembers').value) || 20;
+            const type = document.querySelector('input[name="roomType"]:checked').value;
+            const password = document.getElementById('roomPassword').value;
+            const tags = document.getElementById('roomTags').value.split(',').map(t => t.trim()).filter(t => t);
+
+            const roomId = 'room' + Date.now().toString().slice(-6);
+            
+            appData.rooms[roomId] = {
+                id: roomId,
+                name,
+                type,
+                password: type === 'private' ? password : null,
+                maxMembers,
+                members: {},
+                tags: tags.length ? tags : ['学习'],
+                createdAt: Date.now()
+            };
+
+            saveData();
+            closeModal('createRoomModal');
+            showToast('自习室创建成功！');
+            renderRooms();
+        }
+
+        function joinRoomDirect(roomId) {
+            const room = appData.rooms[roomId];
+            if (!room) {
+                showToast('房间不存在', 'error');
+                return;
+            }
+
+            if (room.type === 'private') {
+                document.getElementById('joinRoomId').value = roomId;
+                document.getElementById('joinPasswordGroup').classList.remove('hidden');
+                showJoinRoomModal();
+                return;
+            }
+
+            enterRoom(roomId);
+        }
+
+        function joinRoom() {
+            const roomId = document.getElementById('joinRoomId').value;
+            const room = appData.rooms[roomId];
+
+            if (!room) {
+                showToast('房间不存在', 'error');
+                return;
+            }
+
+            if (room.type === 'private') {
+                const password = document.getElementById('joinPassword').value;
+                if (password !== room.password) {
+                    showToast('密码错误', 'error');
+                    return;
+                }
+            }
+
+            closeModal('joinRoomModal');
+            enterRoom(roomId);
+        }
+
+        function enterRoom(roomId) {
+            const room = appData.rooms[roomId];
+            const user = appData.users[appData.currentUser];
+
+            room.members[appData.currentUser] = {
+                ...user,
+                joinTime: Date.now(),
+                studyTime: 0,
+                isIdle: false
+            };
+
+            currentRoom = room;
+            saveData();
+
+            document.getElementById('lobbyPage').classList.add('hidden');
+            document.getElementById('studyRoomPage').classList.remove('hidden');
+            document.getElementById('currentRoomName').textContent = room.name;
+
+            startTimer();
+            initMedia();
+            renderVideoGrid();
+            renderMembers();
+            initEmojiPanel();
+            
+            simulateOtherUsers();
+        }
+
+        function leaveRoom() {
+            if (studyTimer) {
+                clearInterval(studyTimer);
+                studyTimer = null;
+            }
+
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+
+            const user = appData.users[appData.currentUser];
+            user.totalStudyTime += studySeconds;
+            
+            const today = new Date().toISOString().split('T')[0];
+            if (user.lastStudyDate !== today) {
+                user.studyDays++;
+                user.lastStudyDate = today;
+            }
+            
+            const dayIndex = new Date().getDay();
+            user.weeklyData[dayIndex] += studySeconds;
+
+            if (currentRoom) {
+                delete currentRoom.members[appData.currentUser];
+            }
+
+            studySeconds = 0;
+            currentRoom = null;
+            saveData();
+
+            showLobby();
+        }
+
+        function startTimer() {
+            studyTimer = setInterval(() => {
+                if (!isPaused) {
+                    studySeconds++;
+                    updateTimerDisplay();
+                    
+                    if (currentRoom && currentRoom.members[appData.currentUser]) {
+                        currentRoom.members[appData.currentUser].studyTime = studySeconds;
+                    }
+                }
+            }, 1000);
+        }
+
+        function toggleTimer() {
+            isPaused = !isPaused;
+            document.getElementById('pauseBtn').textContent = isPaused ? '▶' : '⏸';
+            document.getElementById('pauseBtn').classList.toggle('active', isPaused);
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(studySeconds / 3600);
+            const minutes = Math.floor((studySeconds % 3600) / 60);
+            const seconds = studySeconds % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function formatHours(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            if (hours > 0) {
+                return `${hours}h${minutes}m`;
+            }
+            return `${minutes}m`;
+        }
+
+        async function initMedia() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 720, height: 480, frameRate: 15 }, 
+                    audio: true 
+                });
+                
+                const selfVideo = document.querySelector('.video-card.self video');
+                if (selfVideo) {
+                    selfVideo.srcObject = localStream;
+                    selfVideo.play();
+                }
+            } catch (err) {
+                console.log('Camera access denied:', err);
+                showToast('无法访问摄像头', 'error');
+            }
+        }
+
+        function toggleCamera() {
+            cameraEnabled = !cameraEnabled;
+            if (localStream) {
+                localStream.getVideoTracks().forEach(track => {
+                    track.enabled = cameraEnabled;
+                });
+            }
+            document.getElementById('cameraBtn').classList.toggle('active', !cameraEnabled);
+            document.getElementById('cameraBtn').textContent = cameraEnabled ? '📷' : '🚫';
+        }
+
+        function toggleMic() {
+            micEnabled = !micEnabled;
+            if (localStream) {
+                localStream.getAudioTracks().forEach(track => {
+                    track.enabled = micEnabled;
+                });
+            }
+            document.getElementById('micBtn').classList.toggle('active', !micEnabled);
+            document.getElementById('micBtn').textContent = micEnabled ? '🎤' : '🔇';
+        }
+
+        function renderVideoGrid() {
+            const grid = document.getElementById('videoGrid');
+            const members = currentRoom ? Object.entries(currentRoom.members) : [];
+            
+            let html = '';
+            
+            const user = appData.users[appData.currentUser];
+            html += `
+                <div class="video-card self">
+                    <video autoplay muted playsinline></video>
+                    <div class="video-placeholder" style="display: none;">
+                        <div class="avatar">${user.avatar}</div>
+                        <span>${user.nickname}</span>
+                    </div>
+                    <div class="video-info">
+                        <span class="video-name">${user.nickname} (我)</span>
+                        <span class="video-time">${formatHours(studySeconds)}</span>
+                    </div>
+                </div>
+            `;
+
+            members.forEach(([username, member]) => {
+                if (username !== appData.currentUser) {
+                    html += `
+                        <div class="video-card ${member.isIdle ? 'idle' : ''}" data-username="${username}">
+                            <div class="video-placeholder">
+                                <div class="avatar">${member.avatar}</div>
+                                <span>${member.nickname}</span>
+                            </div>
+                            <div class="video-info">
+                                <span class="video-name">${member.nickname}</span>
+                                <div class="video-status">
+                                    <span class="status-dot ${member.isIdle ? 'idle' : ''}"></span>
+                                    <span>${member.isIdle ? '疑似偷懒' : '学习中'}</span>
+                                </div>
+                                <span class="video-time">${formatHours(member.studyTime || 0)}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            grid.innerHTML = html;
+            document.getElementById('membersCount').textContent = `${members.length}人在线`;
+        }
+
+        function renderMembers() {
+            const list = document.getElementById('membersTab');
+            const members = currentRoom ? Object.entries(currentRoom.members) : [];
+
+            list.innerHTML = members.map(([username, member]) => `
+                <div class="member-item ${selectedMember === username ? 'selected' : ''}" 
+                     onclick="selectMember('${username}')" 
+                     data-username="${username}">
+                    <div class="member-avatar">${member.avatar}</div>
+                    <div class="member-info">
+                        <div class="member-name">${member.nickname}${username === appData.currentUser ? ' (我)' : ''}</div>
+                        <div class="member-time">${formatHours(member.studyTime || 0)}</div>
+                    </div>
+                    ${member.isIdle ? '<span style="color: var(--warning);">⚠️</span>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function selectMember(username) {
+            selectedMember = selectedMember === username ? null : username;
+            renderMembers();
+        }
+
+        function initEmojiPanel() {
+            const emojis = ['😴', '👀', '💪', '🔥', '📚', '⏰', '🎯', '加油'];
+            const panel = document.getElementById('emojiPanel');
+            
+            panel.innerHTML = emojis.map(emoji => `
+                <div class="emoji-item ${selectedEmoji === emoji ? 'selected' : ''}" 
+                     onclick="selectEmoji('${emoji}')">${emoji}</div>
+            `).join('');
+        }
+
+        function selectEmoji(emoji) {
+            selectedEmoji = selectedEmoji === emoji ? null : emoji;
+            initEmojiPanel();
+        }
+
+        function sendEmoji() {
+            if (!selectedMember) {
+                showToast('请先选择一个成员', 'error');
+                return;
+            }
+            if (!selectedEmoji) {
+                showToast('请选择一个表情', 'error');
+                return;
+            }
+
+            const sender = appData.users[appData.currentUser].nickname;
+            
+            if (selectedMember === appData.currentUser) {
+                showEmojiAlert(selectedEmoji, sender);
+            } else {
+                showToast(`已向 ${appData.users[selectedMember]?.nickname || selectedMember} 发送 ${selectedEmoji}`);
+            }
+
+            selectedMember = null;
+            selectedEmoji = null;
+            renderMembers();
+            initEmojiPanel();
+        }
+
+        function showEmojiAlert(emoji, sender) {
+            const alert = document.getElementById('emojiAlert');
+            document.getElementById('alertEmoji').textContent = emoji;
+            document.getElementById('alertSender').textContent = `来自 ${sender}`;
+            
+            alert.classList.remove('show');
+            void alert.offsetWidth;
+            alert.classList.add('show');
+
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+
+        function switchSidebarTab(tab) {
+            document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('membersTab').classList.add('hidden');
+            document.getElementById('emojiTab').classList.add('hidden');
+            document.getElementById('chatTab').classList.add('hidden');
+
+            document.getElementById(`${tab}Tab`).classList.remove('hidden');
+        }
+
+        function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            const messages = document.getElementById('chatMessages');
+            const user = appData.users[appData.currentUser];
+            
+            messages.innerHTML += `
+                <div class="chat-message">
+                    <div class="sender">${user.nickname}</div>
+                    <div class="content">${message}</div>
+                    <div class="time">${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
+            `;
+
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function renderWeeklyChart() {
+            const user = appData.users[appData.currentUser];
+            const days = ['日', '一', '二', '三', '四', '五', '六'];
+            const chart = document.getElementById('weeklyChart');
+            
+            const maxTime = Math.max(...user.weeklyData, 3600);
+            
+            chart.innerHTML = user.weeklyData.map((time, i) => {
+                const height = (time / maxTime) * 100;
+                return `<div class="chart-bar" style="height: ${Math.max(height, 5)}%;" data-day="${days[i]}"></div>`;
+            }).join('');
+
+            const weekTotal = user.weeklyData.reduce((a, b) => a + b, 0);
+            document.getElementById('weekTotal').textContent = formatHours(weekTotal);
+            document.getElementById('avgDaily').textContent = formatHours(weekTotal / 7);
+        }
+
+        function simulateOtherUsers() {
+            const demoUsers = [
+                { username: 'demo1', nickname: '学霸小王', avatar: '📖' },
+                { username: 'demo2', nickname: '考研党小李', avatar: '🎓' },
+                { username: 'demo3', nickname: '程序员小张', avatar: '💻' }
+            ];
+
+            demoUsers.forEach((u, i) => {
+                if (!currentRoom.members[u.username]) {
+                    currentRoom.members[u.username] = {
+                        ...u,
+                        joinTime: Date.now() - (i + 1) * 600000,
+                        studyTime: (i + 1) * 600 + Math.floor(Math.random() * 1800),
+                        isIdle: i === 1
+                    };
+                }
+            });
+
+            saveData();
+            renderVideoGrid();
+            renderMembers();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        init();
+    </script>
+</body>
+</html>

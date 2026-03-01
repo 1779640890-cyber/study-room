@@ -2,6 +2,7 @@ const express = require('express');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const { v4: uuidv4 } = require('uuid');
+const path = require('path');
 const { dbAsync, initTables } = require('./database');
 
 const app = express();
@@ -13,7 +14,7 @@ const io = new Server(httpServer, {
   }
 });
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 const connectedUsers = new Map();

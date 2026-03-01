@@ -1,9 +1,12 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 
-const dbPath = process.env.NODE_ENV === 'production' 
-  ? '/data/studyroom.db' 
-  : path.join(__dirname, 'studyroom.db');
+const dataDir = process.env.NODE_ENV === 'production' 
+  ? '/tmp' 
+  : __dirname;
+
+const dbPath = path.join(dataDir, 'studyroom.db');
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
